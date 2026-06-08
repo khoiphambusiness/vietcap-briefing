@@ -1,4 +1,4 @@
-// api/tcbs.js — proxy TCBS API để tránh CORS
+// api/tcbs.js — proxy SSI data API để tránh CORS
 module.exports = async (req, res) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "GET");
@@ -9,26 +9,40 @@ module.exports = async (req, res) => {
   }
 
   try {
-    const count = type === "weekly" ? 200 : 365;
-    let url;
+    const resolution = type === "weekly" ? "W" : "D";
+    const to = Math.floor(Date.now() / 1000);
+    const from = to - (type === "weekly" ? 200 * 7 * 86400 : 365 * 86400);
 
-    if (ticker === "VNINDEX") {
-      url = `https://apipubaws.tcbs.com.vn/stock-insight/v1/stock/bars-long-term?ticker=VNINDEX&type=${type}&count=${count}`;
-    } else {
-      url = `https://apipubaws.tcbs.com.vn/stock-insight/v2/stock/bars-long-term?ticker=${ticker}&type=${type}&count=${count}`;
-    }
+    const url = `https://iboard-query.ssi.com.vn/chart/history?symbol=${ticker}&resolution=${resolution}&from=${from}&to=${to}`;
 
     const response = await fetch(url, {
       headers: {
         "User-Agent": "Mozilla/5.0",
         "Accept": "application/json",
+        "Origin": "https://iboard.ssi.com.vn",
+        "Referer": "https://iboard.ssi.com.vn/",
       },
     });
 
     const data = await response.json();
-    res.status(200).json(data);
+
+    // Convert SSI format to OHLCV array
+    if (!data.t || !data.t.length) {
+      return res.status(200).json({ data: [] });
+    }
+
+    const bars = data.t.map((time, i) => ({
+      tradingDate: new Date(time * 1000).toISOString().split("T")[0],
+      open:   data.o[i],
+      high:   data.h[i],
+      low:    data.l[i],
+      close:  data.c[i],
+      volume: data.v[i],
+    }));
+
+    res.status(200).json({ data: bars });
   } catch (err) {
-    console.error("TCBS proxy error:", err.message);
+    console.error("SSI proxy error:", err.message);
     res.status(500).json({ error: err.message });
   }
 };
