@@ -1,4 +1,4 @@
-// api/tcbs.js — proxy VNDirect API
+// api/tcbs.js — proxy Yahoo Finance cho cổ phiếu Việt Nam
 module.exports = async (req, res) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "GET");
@@ -9,36 +9,45 @@ module.exports = async (req, res) => {
   }
 
   try {
-    const toDate = new Date().toISOString().split("T")[0].replace(/-/g, "-");
-    const fromDate = new Date(Date.now() - (type === "weekly" ? 200 * 7 : 365) * 86400000)
-      .toISOString().split("T")[0];
+    // Yahoo Finance suffix cho VN: VCB.VN, TCB.VN, VNINDEX = ^VNINDEX
+    const yahooTicker = ticker === "VNINDEX"
+      ? "^VNINDEX"
+      : `${ticker}.VN`;
 
-    const url = `https://finfo-api.vndirect.com.vn/v4/stock_prices?code=${ticker}&fromDate=${fromDate}&toDate=${toDate}&size=365&sort=date`;
+    const interval = type === "weekly" ? "1wk" : "1d";
+    const range    = type === "weekly" ? "4y"  : "1y";
+
+    const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(yahooTicker)}?interval=${interval}&range=${range}`;
 
     const response = await fetch(url, {
       headers: {
         "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36",
         "Accept": "application/json",
-        "Origin": "https://chart.vndirect.com.vn",
-        "Referer": "https://chart.vndirect.com.vn/",
       },
     });
 
-    const data = await response.json();
-    const items = data.data || [];
+    const json = await response.json();
+    const result = json?.chart?.result?.[0];
 
-    const bars = items.map(b => ({
-      tradingDate: b.date,
-      open:   parseFloat(b.open)   * 1000,
-      high:   parseFloat(b.high)   * 1000,
-      low:    parseFloat(b.low)    * 1000,
-      close:  parseFloat(b.close)  * 1000,
-      volume: parseInt(b.nmVolume) || parseInt(b.volume) || 0,
+    if (!result) {
+      return res.status(200).json({ data: [] });
+    }
+
+    const timestamps = result.timestamp || [];
+    const q = result.indicators?.quote?.[0] || {};
+
+    const bars = timestamps.map((t, i) => ({
+      tradingDate: new Date(t * 1000).toISOString().split("T")[0],
+      open:   Math.round((q.open?.[i]   || 0) * 100) / 100,
+      high:   Math.round((q.high?.[i]   || 0) * 100) / 100,
+      low:    Math.round((q.low?.[i]    || 0) * 100) / 100,
+      close:  Math.round((q.close?.[i]  || 0) * 100) / 100,
+      volume: q.volume?.[i] || 0,
     })).filter(b => b.close > 0);
 
     res.status(200).json({ data: bars });
   } catch (err) {
-    console.error("VNDirect proxy error:", err.message);
+    console.error("Yahoo Finance proxy error:", err.message);
     res.status(500).json({ error: err.message });
   }
 };
