@@ -182,7 +182,7 @@ async function fetchData(ticker, tf) {
     const url = \`/api/tcbs?ticker=\${ticker}&type=\${type}\`;
     const res = await fetch(url);
     const data = await res.json();
-    const bars = data.data || data.listStock || [];
+    const bars = data.data || [];
     return bars.map(b => ({
       time: b.tradingDate ? b.tradingDate.split("T")[0] : b.date,
       open:  parseFloat(b.open)  || 0,
