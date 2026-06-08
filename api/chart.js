@@ -21,28 +21,27 @@ module.exports = async (req, res) => {
     --amber: #ffa726;
     --purple: #ab47bc;
   }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
   html, body { height: 100%; overflow: hidden; }
-  body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 13px; display: flex; flex-direction: column; }
-  .header { display: flex; align-items: center; justify-content: space-between; padding: 10px 16px; background: var(--surface); border-bottom: 1px solid var(--border); flex-shrink: 0; }
+  body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 13px; display: flex; flex-direction: column; padding-bottom: env(safe-area-inset-bottom, 0px); }
+  .header { display: flex; align-items: center; justify-content: space-between; padding: 8px 16px; background: var(--surface); border-bottom: 1px solid var(--border); flex-shrink: 0; }
   .header-left { display: flex; align-items: center; gap: 12px; }
   .logo { font-size: 14px; font-weight: 600; color: var(--text); letter-spacing: 0.02em; }
   .logo span { color: #ef5350; }
-  .ticker-row { display: flex; gap: 6px; flex-wrap: wrap; padding: 8px 16px; background: var(--surface); border-bottom: 1px solid var(--border); flex-shrink: 0; }
-  .btn { padding: 5px 12px; border-radius: 6px; border: 1px solid var(--border); background: transparent; color: var(--muted); cursor: pointer; font-size: 12px; font-weight: 500; transition: all .15s; font-family: inherit; }
+  .ticker-row { display: flex; gap: 6px; flex-wrap: nowrap; padding: 6px 16px; background: var(--surface); border-bottom: 1px solid var(--border); flex-shrink: 0; overflow-x: auto; }
+  .btn { padding: 4px 10px; border-radius: 6px; border: 1px solid var(--border); background: transparent; color: var(--muted); cursor: pointer; font-size: 12px; font-weight: 500; transition: all .15s; font-family: inherit; white-space: nowrap; }
   .btn:hover { border-color: var(--blue); color: var(--text); }
   .btn.active { background: var(--blue); border-color: var(--blue); color: #fff; }
-  .btn-tf { padding: 4px 10px; font-size: 11px; }
+  .btn-tf { padding: 3px 8px; font-size: 11px; }
   .btn-tf.active { background: var(--amber); border-color: var(--amber); color: #000; }
-  .price-bar { display: flex; align-items: baseline; gap: 10px; padding: 6px 16px; background: var(--surface); border-bottom: 1px solid var(--border); flex-wrap: wrap; flex-shrink: 0; }
-  .price-main { font-size: 20px; font-weight: 700; }
-  .price-change { font-size: 13px; font-weight: 500; }
+  .price-bar { display: flex; align-items: baseline; gap: 8px; padding: 4px 16px; background: var(--surface); border-bottom: 1px solid var(--border); flex-wrap: wrap; flex-shrink: 0; min-height: 28px; }
+  .price-main { font-size: 18px; font-weight: 700; }
+  .price-change { font-size: 12px; font-weight: 500; }
   .price-meta { font-size: 11px; color: var(--muted); }
   .up { color: var(--green); }
   .down { color: var(--red); }
-  .indicator-row { display: flex; gap: 6px; padding: 6px 16px; background: var(--surface); border-bottom: 1px solid var(--border); flex-wrap: wrap; align-items: center; flex-shrink: 0; }
-  .ind-label { font-size: 11px; color: var(--muted); margin-right: 4px; }
-  .ind-btn { padding: 3px 8px; border-radius: 4px; border: 1px solid var(--border); background: transparent; color: var(--muted); cursor: pointer; font-size: 11px; font-family: inherit; transition: all .15s; }
+  .indicator-row { display: flex; gap: 5px; padding: 5px 16px; background: var(--surface); border-bottom: 1px solid var(--border); flex-wrap: nowrap; align-items: center; flex-shrink: 0; overflow-x: auto; }
+  .ind-label { font-size: 11px; color: var(--muted); margin-right: 2px; white-space: nowrap; }
+  .ind-btn { padding: 2px 7px; border-radius: 4px; border: 1px solid var(--border); background: transparent; color: var(--muted); cursor: pointer; font-size: 11px; font-family: inherit; transition: all .15s; white-space: nowrap; }
   .ind-btn[data-ind="bb"].active  { background: rgba(33,150,243,0.4); color: var(--blue); border-color: var(--blue); }
   .ind-btn[data-ind="ma"].active  { background: rgba(255,167,38,0.2); color: var(--amber); border-color: var(--amber); }
   .ind-btn[data-ind="vol"].active { background: rgba(38,166,154,0.2); color: var(--green); border-color: var(--green); }
@@ -50,12 +49,12 @@ module.exports = async (req, res) => {
   .ind-btn[data-ind="macd"].active{ background: rgba(33,150,243,0.2); color: var(--blue); border-color: var(--blue); }
   .charts-wrap { flex: 1; display: flex; flex-direction: column; min-height: 0; overflow: hidden; }
   #chart-main  { flex: 1; min-height: 0; }
-  #chart-vol   { height: 70px; flex-shrink: 0; border-top: 1px solid var(--border); }
-  #chart-rsi   { height: 90px; flex-shrink: 0; border-top: 1px solid var(--border); }
-  #chart-macd  { height: 90px; flex-shrink: 0; border-top: 1px solid var(--border); }
-  .chart-label { position: absolute; top: 4px; left: 12px; font-size: 10px; color: var(--muted); pointer-events: none; z-index: 10; }
-  .loading { display: flex; align-items: center; justify-content: center; height: 40px; color: var(--muted); font-size: 13px; gap: 8px; }
-  .spinner { width: 14px; height: 14px; border: 2px solid var(--border); border-top-color: var(--blue); border-radius: 50%; animation: spin .7s linear infinite; }
+  #chart-vol   { height: 65px; flex-shrink: 0; border-top: 1px solid var(--border); }
+  #chart-rsi   { height: 80px; flex-shrink: 0; border-top: 1px solid var(--border); }
+  #chart-macd  { height: 80px; flex-shrink: 0; border-top: 1px solid var(--border); }
+  .chart-label { position: absolute; top: 3px; left: 12px; font-size: 10px; color: var(--muted); pointer-events: none; z-index: 10; }
+  .loading { display: flex; align-items: center; justify-content: center; height: 28px; color: var(--muted); font-size: 12px; gap: 6px; }
+  .spinner { width: 12px; height: 12px; border: 2px solid var(--border); border-top-color: var(--blue); border-radius: 50%; animation: spin .7s linear infinite; }
   @keyframes spin { to { transform: rotate(360deg); } }
 </style>
 </head>
