@@ -183,6 +183,10 @@ async function fetchData(ticker, tf) {
     const res = await fetch(url);
     const data = await res.json();
     const bars = data.data || [];
+    if (!bars.length) {
+      document.getElementById("priceBar").innerHTML = \`<span style="color:var(--red);font-size:13px;">Không có data cho \${ticker} — Yahoo Finance chưa hỗ trợ mã này</span>\`;
+      return [];
+    }
     return bars.map(b => ({
       time: b.tradingDate ? b.tradingDate.split("T")[0] : b.date,
       open:  parseFloat(b.open)  || 0,
@@ -193,6 +197,7 @@ async function fetchData(ticker, tf) {
     })).filter(b => b.time && b.close > 0).sort((a,b) => a.time > b.time ? 1 : -1);
   } catch(e) {
     console.error("Fetch error", e);
+    document.getElementById("priceBar").innerHTML = \`<span style="color:var(--red);font-size:13px;">Lỗi tải data: \${e.message}</span>\`;
     return [];
   }
 }
