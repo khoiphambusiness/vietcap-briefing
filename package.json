@@ -4,7 +4,7 @@
   "description": "VietCap Market Briefing",
   "private": true,
   "engines": {
-    "node": "18.x"
+    "node": "24.x"
   },
   "dependencies": {
     "groq-sdk": "^0.9.0",
