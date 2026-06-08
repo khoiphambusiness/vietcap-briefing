@@ -1,10 +1,10 @@
 {
   "name": "vietcap-briefing",
   "version": "1.0.0",
-  "description": "VietCap Market Briefing — tự động 3 báo cáo/ngày",
+  "description": "VietCap Market Briefing",
   "private": true,
-  "scripts": {
-    "dev": "vercel dev"
+  "engines": {
+    "node": "18.x"
   },
   "dependencies": {
     "groq-sdk": "^0.9.0",
