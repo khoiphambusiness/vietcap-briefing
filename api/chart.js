@@ -102,7 +102,6 @@ module.exports = async (req, res) => {
 
 <script>
 const TICKERS = [
-  { id: "VNINDEX", name: "VN-Index", type: "index" },
   { id: "VCB", name: "VCB", type: "stock" },
   { id: "TCB", name: "TCB", type: "stock" },
   { id: "VNM", name: "VNM", type: "stock" },
@@ -121,7 +120,7 @@ const CHART_CONFIG = {
 
 let charts = {};
 let series = {};
-let state = { ticker: "VNINDEX", tf: "D", inds: { bb: true, ma: true, vol: true, rsi: true, macd: true } };
+let state = { ticker: "VCB", tf: "D", inds: { bb: true, ma: true, vol: true, rsi: true, macd: true } };
 let rawData = [];
 
 // ── Init ticker buttons ──────────────────────────────────
@@ -346,7 +345,7 @@ async function switchTF(tf) {
 // ── Boot ──────────────────────────────────────────────────
 initTickers();
 initCharts();
-switchTicker("VNINDEX");
+switchTicker("VCB");
 </script>
 </body>
 </html>`);
