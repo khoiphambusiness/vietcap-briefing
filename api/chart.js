@@ -178,13 +178,8 @@ function initCharts() {
 // ── Fetch TCBS data ──────────────────────────────────────
 async function fetchData(ticker, tf) {
   try {
-    const count = tf === "W" ? 200 : 365;
-    let url;
-    if (ticker === "VNINDEX") {
-      url = \`https://apipubaws.tcbs.com.vn/stock-insight/v1/index/historical-heatmap?ticker=VNINDEX&type=\${tf === "W" ? "weekly" : "daily"}&count=\${count}\`;
-    } else {
-      url = \`https://apipubaws.tcbs.com.vn/stock-insight/v2/stock/bars-long-term?ticker=\${ticker}&type=\${tf === "W" ? "weekly" : "daily"}&count=\${count}\`;
-    }
+    const type = tf === "W" ? "weekly" : "daily";
+    const url = \`/api/tcbs?ticker=\${ticker}&type=\${type}\`;
     const res = await fetch(url);
     const data = await res.json();
     const bars = data.data || data.listStock || [];
