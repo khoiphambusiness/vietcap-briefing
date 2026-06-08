@@ -12,10 +12,5 @@
       "path": "/api/eod",
       "schedule": "0 8 * * 1-5"
     }
-  ],
-  "functions": {
-    "api/morning.js": { "maxDuration": 60 },
-    "api/midday.js":  { "maxDuration": 60 },
-    "api/eod.js":     { "maxDuration": 60 }
-  }
+  ]
 }
